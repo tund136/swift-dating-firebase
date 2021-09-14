@@ -116,6 +116,10 @@ struct LoginView: View {
                 
                 Spacer()
             }
+            
+            if model.isLoading {
+                LoadingView()
+            }
         }
         .fullScreenCover(isPresented: $model.isSignUp) {
             SignUpView(model: model)
@@ -257,7 +261,9 @@ class ModelData: ObservableObject {
     // User status
     @AppStorage("log_status") var status = false
     
-    // AlertView with TextField
+    // Loading
+    @Published var isLoading = false
+    
     func resetPassword() {
         let alert = UIAlertController(title: "Reset Password", message: "Enter your email address to reset your password", preferredStyle: .alert)
         
@@ -290,7 +296,15 @@ class ModelData: ObservableObject {
             return
         }
         
+        withAnimation {
+            self.isLoading.toggle()
+        }
+        
         Auth.auth().signIn(withEmail: email, password: password) { (result, err) in
+            withAnimation {
+                self.isLoading.toggle()
+            }
+            
             if err != nil {
                 self.alertMsg = err!.localizedDescription
                 self.alert.toggle()
