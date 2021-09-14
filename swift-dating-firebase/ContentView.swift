@@ -341,7 +341,47 @@ class ModelData: ObservableObject {
     
     // Sign up
     func signUp() {
+        // Checking
+        if emailSignUp == "" || passwordSignUp == "" || reEnterPassword == "" {
+            self.alertMsg = "Fill contents properly!"
+            self.alert.toggle()
+            return
+        }
         
+        if passwordSignUp != reEnterPassword {
+            self.alertMsg = "Password mismatch!"
+            self.alert.toggle()
+            return
+        }
+        
+        withAnimation {
+            self.isLoading.toggle()
+        }
+        
+        Auth.auth().createUser(withEmail: emailSignUp, password: passwordSignUp) { (result, err) in
+            withAnimation {
+                self.isLoading.toggle()
+            }
+            
+            if err != nil {
+                self.alertMsg = err!.localizedDescription
+                self.alert.toggle()
+                return
+            }
+            
+            // Sending verification link
+            result?.user.sendEmailVerification(completion: { (err) in
+                if err != nil {
+                    self.alertMsg = err!.localizedDescription
+                    self.alert.toggle()
+                    return
+                }
+                
+                // Alerting user to verify email
+                self.alertMsg = "Email verification has been sent. Verify your email!"
+                self.alert.toggle()
+            })
+        }
     }
 }
 
