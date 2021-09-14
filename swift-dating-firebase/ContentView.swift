@@ -60,7 +60,7 @@ struct LoginView: View {
                 }
                 
                 Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
-                    Text("Login")
+                    Text("LOG IN")
                         .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                         .foregroundColor(.red)
                         .padding(.vertical)
@@ -74,7 +74,9 @@ struct LoginView: View {
                     Text("Don't have an account?")
                         .foregroundColor(.white.opacity(0.7))
                     
-                    Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    Button(action: {
+                        model.isSignUp.toggle()
+                    }, label: {
                         Text("Sign Up Now")
                             .foregroundColor(.white)
                             .bold()
@@ -90,6 +92,9 @@ struct LoginView: View {
                         .bold()
                 })
             }
+        }
+        .fullScreenCover(isPresented: $model.isSignUp) {
+            SignUpView(model: model)
         }
         
     }
@@ -110,7 +115,7 @@ struct CustomTextField: View {
                 .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
             
             ZStack {
-                if playholder == "Password" {
+                if playholder == "Password" || playholder == "Re-enter Password" {
                     SecureField(playholder, text: $text)
                 } else {
                     TextField(playholder, text: $text)
@@ -126,10 +131,91 @@ struct CustomTextField: View {
     }
 }
 
+struct SignUpView: View {
+    @ObservedObject var model: ModelData
+    
+    var body: some View {
+        ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
+            LinearGradient(gradient: .init(colors: [Color.orange, Color.pink]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            
+            Button(action: {
+                model.isSignUp.toggle()
+            }, label: {
+                Image(systemName: "xmark")
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black.opacity(0.6))
+                    .clipShape(Circle())
+            })
+            .padding(.trailing)
+            .padding(.top)
+            
+            VStack {
+                Spacer()
+                
+                Image(systemName: "bolt.heart.fill")
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(.red)
+                    .font(.system(size: 150))
+                    .frame(width: 200, height: 200)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(20)
+                
+                VStack(spacing: 4) {
+                    HStack(spacing: 0) {
+                        Text("New")
+                            .font(.title)
+                            .fontWeight(.heavy)
+                            .foregroundColor(.white)
+                        
+                        Text("Profile")
+                            .font(.title)
+                            .fontWeight(.heavy)
+                            .foregroundColor(.yellow)
+                    }
+                    
+                    Text("Create a profile for you!")
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top)
+                
+                Spacer()
+                
+                VStack(spacing: 20) {
+                    CustomTextField(image: "person", playholder: "Email", text: $model.emailSignUp)
+                    
+                    CustomTextField(image: "lock", playholder: "Password", text: $model.passwordSignUp)
+                    
+                    CustomTextField(image: "lock", playholder: "Re-enter Password", text: $model.reEnterPassword)
+                }
+                .padding(.top)
+                
+                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    Text("SIGN UP")
+                        .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(.red)
+                        .padding(.vertical)
+                        .frame(width: UIScreen.main.bounds.width - 180)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                })
+                .padding(.top)
+                
+                Spacer()
+            }
+        }
+    }
+}
+
 // MVVM Model
 class ModelData: ObservableObject {
     @Published var email = ""
     @Published var password = ""
+    @Published var isSignUp = false
+    @Published var emailSignUp = ""
+    @Published var passwordSignUp = ""
+    @Published var reEnterPassword = ""
 }
 
 struct ContentView_Previews: PreviewProvider {
