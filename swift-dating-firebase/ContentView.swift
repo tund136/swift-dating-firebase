@@ -86,7 +86,7 @@ struct LoginView: View {
                 
                 Spacer(minLength: 0)
                 
-                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                Button(action: model.resetPassword, label: {
                     Text("Forgot password?")
                         .foregroundColor(.white)
                         .bold()
@@ -95,6 +95,9 @@ struct LoginView: View {
         }
         .fullScreenCover(isPresented: $model.isSignUp) {
             SignUpView(model: model)
+        }
+        .alert(isPresented: $model.isLinkSent) {
+            Alert(title: Text("Message"), message: Text("Password Reset Link has been sent."), dismissButton: .destructive(Text("OK")))
         }
         
     }
@@ -216,6 +219,32 @@ class ModelData: ObservableObject {
     @Published var emailSignUp = ""
     @Published var passwordSignUp = ""
     @Published var reEnterPassword = ""
+    @Published var resetEmail = ""
+    @Published var isLinkSent = false
+    
+    // AlertView with TextField
+    func resetPassword() {
+        let alert = UIAlertController(title: "Reset Password", message: "Enter your email address to reset your password", preferredStyle: .alert)
+        
+        alert.addTextField { password in
+            password.placeholder = "Email"
+        }
+        
+        let proceed = UIAlertAction(title: "Reset", style: .default) { _ in
+            self.resetEmail = alert.textFields![0].text!
+            
+            // Presenting alert when email link has been sent
+            self.isLinkSent.toggle()
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive, handler: nil)
+        
+        alert.addAction(cancel)
+        alert.addAction(proceed)
+        
+        // Presenting
+        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
