@@ -237,9 +237,17 @@ struct SignUpView: View {
                 })
                 .padding(.top)
                 
+                if model.isLoading {
+                    LoadingView()
+                }
+                
                 Spacer()
             }
         }
+        // Alerts
+        .alert(isPresented: $model.alert, content: {
+            Alert(title: Text("Message"), message: Text(model.alertMsg), dismissButton: .destructive(Text("OK")))
+        })
     }
 }
 
