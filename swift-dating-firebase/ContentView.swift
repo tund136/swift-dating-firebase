@@ -25,13 +25,19 @@ struct LoginView: View {
                 
                 Spacer()
                 
-                Image(systemName: "bolt.heart.fill")
-                    .aspectRatio(contentMode: .fit)
-                    .foregroundColor(.red)
-                    .font(.system(size: 150))
-                    .frame(width: 200, height: 200)
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(20)
+                ZStack {
+                    if UIScreen.main.bounds.height < 750 {
+                        Image(systemName: "bolt.heart.fill")
+                    } else {
+                        Image(systemName: "bolt.heart.fill")
+                    }
+                }
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(.red)
+                .font(.system(size: 150))
+                .frame(width: 200, height: 200)
+                .background(Color.white.opacity(0.2))
+                .cornerRadius(20)
                 
                 VStack(spacing: 4) {
                     HStack(spacing: 0) {
@@ -91,6 +97,8 @@ struct LoginView: View {
                         .foregroundColor(.white)
                         .bold()
                 })
+                
+                Spacer()
             }
         }
         .fullScreenCover(isPresented: $model.isSignUp) {
@@ -246,6 +254,8 @@ class ModelData: ObservableObject {
         UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
     }
 }
+
+// Checking with smaller devices
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
