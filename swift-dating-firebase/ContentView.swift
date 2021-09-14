@@ -6,10 +6,26 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct ContentView: View {
+    @AppStorage("log_status") var status = false
+    
     var body: some View {
-        LoginView()
+        ZStack {
+            if status {
+                VStack(spacing: 20) {
+                    Text("Logged in as \(Auth.auth().currentUser?.email ?? "")")
+                    
+                    Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                        Text("Log out")
+                            .fontWeight(.bold)
+                    })
+                }
+            } else {
+                LoginView()
+            }
+        }
     }
 }
 
@@ -65,7 +81,7 @@ struct LoginView: View {
                     CustomTextField(image: "lock", playholder: "Password", text: $model.password)
                 }
                 
-                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                Button(action: model.login, label: {
                     Text("LOG IN")
                         .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                         .foregroundColor(.red)
@@ -108,6 +124,10 @@ struct LoginView: View {
             Alert(title: Text("Message"), message: Text("Password Reset Link has been sent."), dismissButton: .destructive(Text("OK")))
         }
         
+        // Alerts
+        .alert(isPresented: $model.alert, content: {
+            Alert(title: Text("Message"), message: Text(model.alertMsg), dismissButton: .destructive(Text("OK")))
+        })
     }
 }
 
@@ -202,7 +222,7 @@ struct SignUpView: View {
                 }
                 .padding(.top)
                 
-                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                Button(action: model.signUp, label: {
                     Text("SIGN UP")
                         .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                         .foregroundColor(.red)
@@ -230,6 +250,13 @@ class ModelData: ObservableObject {
     @Published var resetEmail = ""
     @Published var isLinkSent = false
     
+    // Error Alerts
+    @Published var alert = false
+    @Published var alertMsg = ""
+    
+    // User status
+    @AppStorage("log_status") var status = false
+    
     // AlertView with TextField
     func resetPassword() {
         let alert = UIAlertController(title: "Reset Password", message: "Enter your email address to reset your password", preferredStyle: .alert)
@@ -253,9 +280,48 @@ class ModelData: ObservableObject {
         // Presenting
         UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
     }
+    
+    // Log in
+    func login() {
+        // Checking all fields are inputted correctly
+        if email == "" || password == "" {
+            self.alertMsg = "Fill the contents properly!"
+            self.alert.toggle()
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password) { (result, err) in
+            if err != nil {
+                self.alertMsg = err!.localizedDescription
+                self.alert.toggle()
+                return
+            }
+            
+            // Checking if user is verified or not
+            // If not verified means logging out
+            let user = Auth.auth().currentUser
+            if !user!.isEmailVerified {
+                self.alertMsg = "Please verify email address"
+                self.alert.toggle()
+                
+                // Logging out
+                try! Auth.auth().signOut()
+                
+                return
+            }
+            
+            // Setting user status as true
+            withAnimation {
+                self.status = true
+            }
+        }
+    }
+    
+    // Sign up
+    func signUp() {
+        
+    }
 }
-
-// Checking with smaller devices
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
