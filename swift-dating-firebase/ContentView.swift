@@ -51,13 +51,44 @@ struct LoginView: View {
                 }
                 .padding(.top)
                 
+                Spacer()
+                
                 VStack(spacing: 20) {
                     CustomTextField(image: "person", playholder: "Email", text: $model.email)
                     
                     CustomTextField(image: "lock", playholder: "Password", text: $model.password)
                 }
-
+                
+                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    Text("Login")
+                        .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(.red)
+                        .padding(.vertical)
+                        .frame(width: UIScreen.main.bounds.width - 180)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                })
+                .padding(.top)
+                
+                HStack(spacing: 20) {
+                    Text("Don't have an account?")
+                        .foregroundColor(.white.opacity(0.7))
+                    
+                    Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                        Text("Sign Up Now")
+                            .foregroundColor(.white)
+                            .bold()
+                    })
+                }
+                .padding(.top)
+                
                 Spacer(minLength: 0)
+                
+                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    Text("Forgot password?")
+                        .foregroundColor(.white)
+                        .bold()
+                })
             }
         }
         
@@ -78,12 +109,18 @@ struct CustomTextField: View {
                 .background(Color.white)
                 .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
             
-            TextField(playholder, text: $text)
-                .padding(.horizontal)
-                .padding(.leading, 65)
-                .frame(height: 60)
-                .background(Color.white.opacity(0.2))
-                .clipShape(Capsule())
+            ZStack {
+                if playholder == "Password" {
+                    SecureField(playholder, text: $text)
+                } else {
+                    TextField(playholder, text: $text)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.leading, 65)
+            .frame(height: 60)
+            .background(Color.white.opacity(0.2))
+            .clipShape(Capsule())
         }
         .padding(.horizontal)
     }
